@@ -1,5 +1,5 @@
 const boardService = require('./board.service')
-const socketService = require('../../services/socket.service')
+// const socketService = require('../../services/socket.service')
 const logger = require('../../services/logger.service')
 
 async function getBoard(req, res) {
@@ -17,10 +17,10 @@ async function getBoards(req, res) {
         const filterBy = {
             name: req.query?.name || '',
             description: req.query?.description || '',
-            type:  req.query?.type || '',
+            type: req.query?.type || '',
             sortBy: req.query?.sortBy || 'name'
         }
-        
+
         const boards = await boardService.query(filterBy)
         res.send(boards)
     } catch (err) {
@@ -31,7 +31,6 @@ async function getBoards(req, res) {
 
 async function deleteBoard(req, res) {
     try {
-        // console.log(req.params)
         await boardService.remove(req.params.id)
         res.send({ msg: 'Deleted successfully' })
     } catch (err) {
@@ -43,10 +42,9 @@ async function deleteBoard(req, res) {
 async function updateBoard(req, res) {
     try {
         const board = req.body
-        // console.log('controller ***********',req.body);
         const savedBoard = await boardService.update(board)
         res.send(savedBoard)
-        // socketService.broadcast({type: 'user-updated', data: review, to:savedUser._id})
+        // socketService.broadcast({ type: 'board updated', data: board })
     } catch (err) {
         logger.error('Failed to update board', err)
         res.status(500).send({ err: 'Failed to update board' })
@@ -54,7 +52,6 @@ async function updateBoard(req, res) {
 }
 
 async function addBoard(req, res) {
-    console.log('controlt - ###################################');
     try {
         const board = req.body
         const savedBoard = await boardService.add(board)

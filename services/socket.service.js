@@ -1,5 +1,3 @@
-
-
 const asyncLocalStorage = require('./als.service');
 const logger = require('./logger.service');
 
@@ -7,7 +5,13 @@ var gIo = null
 var gSocketBySessionIdMap = {}
 
 function connectSockets(http, session) {
-    gIo = require('socket.io')(http);
+    gIo = require('socket.io')(http, {
+        cors: {
+            origin: 'http://localhost:3000',
+            methods: ["GET", "POST", "PUT", "DELETE"],
+            credentials: true
+        }
+    });
 
     const sharedSession = require('express-socket.io-session');
 
@@ -17,7 +21,6 @@ function connectSockets(http, session) {
     gIo.on('connection', socket => {
         console.log('New socket - socket.handshake.sessionID', socket.handshake.sessionID)
         gSocketBySessionIdMap[socket.handshake.sessionID] = socket
-        // TODO: emitToUser feature - need to tested for CaJan21
         // if (socket.handshake?.session?.user) socket.join(socket.handshake.session.user._id)
         socket.on('disconnect', socket => {
             console.log('Someone disconnected')
@@ -25,21 +28,25 @@ function connectSockets(http, session) {
                 gSocketBySessionIdMap[socket.handshake.sessionID] = null
             }
         })
-        socket.on('chat topic', topic => {
-            if (socket.myTopic === topic) return;
-            if (socket.myTopic) {
-                socket.leave(socket.myTopic)
+
+        socket.on('join board', boardId => {
+            if (socket.boardId === boardId) return;
+            if (socket.boardId) {
+                socket.leave(socket.boardId)
             }
-            socket.join(topic)
+            socket.join(boardId)
             // logger.debug('Session ID is', socket.handshake.sessionID)
-            socket.myTopic = topic
+            socket.boardId = boardId
         })
-        socket.on('chat newMsg', msg => {
+
+        socket.on('board update', board => {
+            // console.log('board', board);
             // emits to all sockets:
             // gIo.emit('chat addMsg', msg)
             // emits only to sockets in the same room
-            gIo.to(socket.myTopic).emit('chat addMsg', msg)
+            gIo.to(socket.boardId).emit('board updated', board)
         })
+
         socket.on('user-watch', userId => {
             socket.join(userId)
         })

@@ -6,6 +6,10 @@ const expressSession = require('express-session')
 const app = express()
 const http = require('http').createServer(app)
 
+// const { Server } = require("socket.io");
+// const io = new Server(http);
+
+
 const session = expressSession({
     secret: 'coding is amazing',
     resave: false,
@@ -29,14 +33,14 @@ if (process.env.NODE_ENV === 'production') {
 const authRoutes = require('./api/auth/auth.routes')
 const userRoutes = require('./api/user/user.routes')
 const boardRoutes = require('./api/board/board.routes')
-const {connectSockets} = require('./services/socket.service')
+const { connectSockets } = require('./services/socket.service')
 
 // routes
 const setupAsyncLocalStorage = require('./middlewares/setupAls.middleware')
 app.all('*', setupAsyncLocalStorage)
 
 // TODO: check with app.use
-app.get('/api/setup-session', (req, res) =>{
+app.get('/api/setup-session', (req, res) => {
     req.session.connectedAt = Date.now()
     console.log('setup-session:', req.sessionID);
     res.end()

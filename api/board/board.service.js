@@ -16,7 +16,6 @@ async function query(filterBy = {}) {
     try {
         const collection = await dbService.getCollection('board')
         var boards = await collection.find(criteria).toArray()
-        console.log(boards)
         boards = boards.map(board => {
             // board.createdAt = ObjectId(board._id).getTimestamp()
             // Returning fake fresh data
@@ -71,18 +70,16 @@ async function remove(boardId) {
     }
 }
 
-async function update(board) {          
-    try {                               
+async function update(board) {
+    try {
         const boardToSave = {
             ...board,
             _id: ObjectId(board._id)
         }
-        
+
         const collection = await dbService.getCollection('board')
-        await collection.updateOne({ _id: boardToSave._id }, { $set: boardToSave } )
-        console.log(collection);
+        await collection.updateOne({ _id: boardToSave._id }, { $set: boardToSave })
         const newBoard = await getById(board._id)
-        console.log('Masheu verbali', newBoard);
         return boardToSave;
     } catch (err) {
         logger.error(`cannot update board ${board._id}`, err)
@@ -94,19 +91,19 @@ async function add(board) {       // TODO: to add user, to check if necessary de
     try {
         // const {_id, fullname, imgUrl} = user // Meaby can write {user}
         // console.log(board)
-        const { title, isArchived, isTemplate, labels, activities, createdBy, style, members, groups} = board
+        const { title, isArchived, isTemplate, labels, activities, createdBy, style, members, groups } = board
         const boardToAdd = {
             title,
             isArchived,
             isTemplate,
             labels,
             activities,
-            createdBy, 
+            createdBy,
             style,
             members,
             groups,
         }
-        
+
         const collection = await dbService.getCollection('board')
         await collection.insertOne(boardToAdd)
         return boardToAdd

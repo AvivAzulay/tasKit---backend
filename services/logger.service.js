@@ -20,17 +20,17 @@ function isError(e) {
 
 function doLog(level, ...args) {
 
-    console.log('LOGGER:', args);
+    // console.log('LOGGER:', args);
     const strs = args.map(arg =>
         (typeof arg === 'string') ? arg :
             (isError(arg)) ? arg : JSON.stringify(arg))
-            
+
     var line = strs.join(' | ')
     const store = asyncLocalStorage.getStore()
     const sessionId = store?.sessionId
     const sid = sessionId ? `(sid: ${sessionId})` : ''
     line = `${getTime()} - ${level} - ${line} ${sid}\n`
-    console.log(line)
+    // console.log(line)
     fs.appendFileSync('./logs/backend.log', line)
 }
 
